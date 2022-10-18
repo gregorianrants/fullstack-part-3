@@ -6,6 +6,76 @@ POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-        "name": "angus mcangus",
+        "name": "jim hawkins",
         "number": "123654852"
 }     
+
+###invalid json - comma at end off - "number": "123654852", - is invalid
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+        "name": "sandwich mcangus",
+        "number": "123654852",
+}   
+
+###create new person missing content
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+        "name": "sandwich mcangus"
+}     
+
+###get person 
+GET http://localhost:3001/api/persons/634e7497790d2054d05a2eb9
+
+###get non existant person 
+GET http://localhost:3001/api/persons/634e49b8ecc8386c142b8454
+
+###get person with invalid id
+GET http://localhost:3001/api/persons/6
+
+###delete person 
+DELETE  http://localhost:3001/api/persons/634e7497790d2054d05a2eb9
+
+###delete nonexistant person 
+DELETE  http://localhost:3001/api/persons/634d49bfd79a75ac27c5cdcf
+
+###delete person with invalid id 
+DELETE  http://localhost:3001/api/persons/6
+
+###update with put
+PUT  http://localhost:3001/api/persons/634e75acad5a62ecc8b99b45
+Content-Type: application/json
+
+{
+        "name": "this has changed",
+        "number": "123654852"
+}   
+
+###partial update with put -despite my reservations
+PUT  http://localhost:3001/api/persons/634e75acad5a62ecc8b99b45
+Content-Type: application/json
+
+{
+        "name": "this has changed again"
+}   
+
+###put with nonexistant id 
+PUT  http://localhost:3001/api/persons/634e49b8ecc8386c142b8455
+Content-Type: application/json
+
+{
+        "name": "this has changed again",
+        "number": "123654852"
+}   
+
+###put with invalid id 
+PUT  http://localhost:3001/api/persons/6
+Content-Type: application/json
+
+{
+        "name": "this has changed again",
+        "number": "123654852"
+}   

@@ -2,9 +2,9 @@ require("dotenv").config();
 const express = require("express");
 let persons = require("./persons.js");
 const morgan = require("morgan");
-
 const Person = require("./models/person.js");
-
+const errorHandler = require("./error_handling/errorHandler.js");
+const AppError = require("./error_handling/AppError.js");
 const app = express();
 
 const { containsName, getId } = require("./utilities.js");
@@ -23,20 +23,6 @@ app.use(
   )
 );
 
-app.get("/api/persons", (req, res) => {
-  Person.find({}).then((mongo_res) => {
-    res.json(mongo_res);
-  });
-});
-
-app.get("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  console.log(id);
-  const person = persons.find((person) => person.id === id);
-  if (!person) return res.status(400).end();
-  res.status(200).json(person);
-});
-
 app.get("/info", (req, res) => {
   const dateTime = new Date().toString();
   const content = `<p>Phonebook has info for ${persons.length} people</p>
@@ -45,21 +31,30 @@ app.get("/info", (req, res) => {
   res.status(200).send(content);
 });
 
-app.delete("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  console.log(id);
-  const person = persons.find((person) => person.id === id);
-  if (!person) return res.status(400).end();
-  persons = persons.filter((person) => person.id !== id);
-  res.status(200).end();
+app.get("/api/persons", (req, res, next) => {
+  Person.find({})
+    .then((mongo_res) => {
+      res.json(mongo_res);
+    })
+    .catch((err) => next(err));
 });
 
-app.post("/api/persons", (req, res) => {
+app.get("/api/persons/:id", (req, res, next) => {
+  const id = req.params.id;
+  console.log(id);
+  Person.findById(id)
+    .then((person) => {
+      if (!person) return next(new AppError("no such person", 404));
+      res.status(200).json(person);
+    })
+    .catch((err) => next(err));
+});
+
+app.post("/api/persons", (req, res, next) => {
   const { name, number } = req.body;
-  if (!name || !number)
-    return res.status(400).json({
-      error: "content missing",
-    });
+  if (!name || !number) {
+    return next(new AppError("content missing", 400));
+  }
 
   const person = new Person({ name, number, id: getId() });
 
@@ -69,11 +64,43 @@ app.post("/api/persons", (req, res) => {
       res.status(200).json(result);
     })
     .catch((err) => {
-      res
-        .status(400)
-        .send({ error: "there was an error saving new person to the db" });
+      next(err);
     });
 });
+
+app.delete("/api/persons/:id", (req, res, next) => {
+  const id = req.params.id;
+  Person.findByIdAndDelete(id)
+    .then((result) => {
+      res.status(204).end();
+    })
+    .catch((err) => {
+      next(err);
+    });
+});
+
+app.put("/api/persons/:id", async (req, res, next) => {
+  /*
+  course seems to think we should do a partial update here 
+  from MDN 
+  The HTTP PATCH request method applies partial modifications to a resource.
+  also from MDN
+  The HTTP PUT request method creates a new resource or replaces a representation of the target resource with the request payload.
+  i have done this as per the spec and made it replace the resource with the payload
+  i will do it the way they expect in the course but i dont think this is correct way to do it,
+  */
+  try {
+    const id = req.params.id;
+    const person = await Person.findByIdAndUpdate(id, req.body, { new: true });
+    console.log(person);
+    if (person === null) return next(new AppError("no such person", 404));
+    res.status(200).json(person);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`server now listening on ${PORT}`));
