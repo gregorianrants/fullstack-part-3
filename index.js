@@ -23,12 +23,17 @@ app.use(
   )
 );
 
-app.get("/info", (req, res) => {
+app.get("/info", async (req, res) => {
   const dateTime = new Date().toString();
-  const content = `<p>Phonebook has info for ${persons.length} people</p>
-                    <p>${dateTime}</p>`;
-  res.type("html");
-  res.status(200).send(content);
+  try {
+    const persons = await Person.find({});
+    const content = `<p>Phonebook has info for ${persons.length} people</p>
+    <p>${dateTime}</p>`;
+    res.type("html");
+    res.status(200).send(content);
+  } catch (err) {
+    next(err);
+  }
 });
 
 app.get("/api/persons", (req, res, next) => {
