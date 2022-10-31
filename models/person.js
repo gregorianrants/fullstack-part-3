@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validatePhoneNumber = require("../utilities/validatePhoneNumber.js");
 
 mongoose
   .connect(process.env.MONGODB_URL)
@@ -10,8 +11,23 @@ mongoose
   });
 
 const personSchema = mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minLength: 3,
+    required: true,
+  },
+  number: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function (v) {
+        console.log("hello");
+        return validatePhoneNumber(v);
+      },
+      message: (props) =>
+        `${props.value} is invalid.  the phone number can optionaly start with 2 or 3 digits followed by a hyphen and it should have at least 8 digits in total`,
+    },
+  },
 });
 
 personSchema.set("toJSON", {
@@ -23,6 +39,5 @@ personSchema.set("toJSON", {
 });
 
 const Person = mongoose.model("Person", personSchema);
-
 
 module.exports = Person;

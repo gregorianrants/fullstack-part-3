@@ -7,7 +7,7 @@ Content-Type: application/json
 
 {
         "name": "jim hawkins",
-        "number": "123654852"
+        "number": "1234567"
 }     
 
 ###invalid json - comma at end off - "number": "123654852", - is invalid
@@ -16,7 +16,7 @@ Content-Type: application/json
 
 {
         "name": "sandwich mcangus",
-        "number": "123654852",
+        "number": "12345678",
 }   
 
 ###create new person missing content
