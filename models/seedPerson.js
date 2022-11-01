@@ -11,15 +11,15 @@ const people = [
   },
   {
     name: "Ada Lovelace",
-    number: "39-44-5323523",
+    number: "39-5323523",
   },
   {
     name: "Dan Abramov",
-    number: "12-43-234345",
+    number: "12-23434585",
   },
   {
     name: "Mary Poppendieck",
-    number: "39-23-6423122",
+    number: "39-6423122555",
   },
 ];
 
